@@ -49,7 +49,17 @@ app.post("/items", async (req, res) => {
   }
 });
 
-app.get("/items", async (req, res) => {
+app.get("/easy/items", async (req, res) => {
+  try {
+    const [rows] = await promisePool.execute("SELECT * FROM tradingquiz");
+    res.json(rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Failed to retrieve items" });
+  }
+});
+
+app.get("/hard/items", async (req, res) => {
   try {
     const [rows] = await promisePool.execute("SELECT * FROM tradingquiz");
     res.json(rows);
