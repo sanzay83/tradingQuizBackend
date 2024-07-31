@@ -112,11 +112,19 @@ app.get("/study/items", async (req, res) => {
 });
 
 app.post("/study/items", async (req, res) => {
-  const { title, thumbnail, exampleimage, description, type, id } = req.body;
+  const {
+    title,
+    thumbnail,
+    exampleimage,
+    exampleimage2,
+    description,
+    type,
+    id,
+  } = req.body;
   try {
     await promisePool.execute(
-      "INSERT INTO StudyMaterial (title, thumbnail, exampleimage, description, type, id) VALUES (?, ?, ?, ?, ?, ?)",
-      [title, thumbnail, exampleimage, description, type, id]
+      "INSERT INTO StudyMaterial (title, thumbnail, exampleimage, exampleimage2, description, type, id) VALUES (?, ?, ?, ?, ?, ?, ?)",
+      [title, thumbnail, exampleimage, exampleimage2, description, type, id]
     );
     res.json({ message: "Item added" });
   } catch (err) {
