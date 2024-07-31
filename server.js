@@ -36,10 +36,11 @@ app.get("/", (req, res) => {
 });
 
 app.post("/items", async (req, res) => {
-  const { id, question, answer, buysell } = req.body;
+  const { id, question, answer, buysell, difficulty } = req.body;
+
   try {
-    const [result] = await promisePool.execute(
-      "INSERT INTO tradingquiz (id, question, answer, buysell) VALUES (?, ?, ?, ?)",
+    await promisePool.execute(
+      `INSERT INTO tradingquiz${difficulty} (id, question, answer, buysell) VALUES (?, ?, ?, ?)`,
       [id, question, answer, buysell]
     );
     res.json({ message: "Item added" });
@@ -51,7 +52,7 @@ app.post("/items", async (req, res) => {
 
 app.get("/easy/items", async (req, res) => {
   try {
-    const [rows] = await promisePool.execute("SELECT * FROM tradingquiz");
+    const [rows] = await promisePool.execute("SELECT * FROM tradingquizeasy");
     res.json(rows);
   } catch (err) {
     console.error(err);
@@ -61,7 +62,7 @@ app.get("/easy/items", async (req, res) => {
 
 app.get("/hard/items", async (req, res) => {
   try {
-    const [rows] = await promisePool.execute("SELECT * FROM tradingquiz");
+    const [rows] = await promisePool.execute("SELECT * FROM tradingquizhard");
     res.json(rows);
   } catch (err) {
     console.error(err);
@@ -69,11 +70,28 @@ app.get("/hard/items", async (req, res) => {
   }
 });
 
-app.delete("/items/:id", async (req, res) => {
+app.delete("/easy/items/:id", async (req, res) => {
   const { id } = req.params;
   try {
     const [result] = await promisePool.execute(
-      "DELETE FROM tradingquiz WHERE id = ?",
+      "DELETE FROM tradingquizeasy WHERE id = ?",
+      [id]
+    );
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: "item not found" });
+    }
+    res.json({ message: "Item deleted" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Failed to delete item" });
+  }
+});
+
+app.delete("/hard/items/:id", async (req, res) => {
+  const { id } = req.params;
+  try {
+    const [result] = await promisePool.execute(
+      "DELETE FROM tradingquizhard WHERE id = ?",
       [id]
     );
     if (result.affectedRows === 0) {
